@@ -1,31 +1,49 @@
 'use client';
 
-import { Search, Plus, Webhook, X } from 'lucide-react';
+import { Search, Plus, Webhook, X, RotateCcw, Moon, Sun } from 'lucide-react';
 import { useState } from 'react';
 import { FUNNELS } from '@/lib/types';
+import { useTheme } from '@/lib/theme-context';
 
 interface HeaderProps {
   search: string;
   onSearchChange: (v: string) => void;
   onCreateLead: () => void;
+  onRefresh?: () => void;
 }
 
-export default function Header({ search, onSearchChange, onCreateLead }: HeaderProps) {
+export default function Header({ search, onSearchChange, onCreateLead, onRefresh }: HeaderProps) {
+  const { theme, toggleTheme } = useTheme();
   const [showWebhooks, setShowWebhooks] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const getBaseUrl = () => {
     if (typeof window !== 'undefined') return window.location.origin;
     return 'https://SEU-DOMINIO.vercel.app';
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    if (onRefresh) await onRefresh();
+    setRefreshing(false);
+  };
+
   return (
     <>
       <header className="flex items-center gap-4 px-6 py-4 border-b border-[#1e1e24] bg-[#0d0d0f] shrink-0">
-        {/* Logo */}
+        {/* Logo SVG */}
         <div className="flex items-center gap-2 mr-2">
-          <div className="w-7 h-7 rounded-lg bg-[#7c3aed] flex items-center justify-center text-white font-bold text-sm">
-            P
-          </div>
+          <svg width="32" height="32" viewBox="0 0 32 32" className="flex-shrink-0">
+            <defs>
+              <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#ff1493" />
+                <stop offset="100%" stopColor="#ff69b4" />
+              </linearGradient>
+            </defs>
+            <path d="M 4 8 Q 4 4 8 4 L 24 4 Q 28 4 28 8 L 28 24 Q 28 28 24 28 L 8 28 Q 4 28 4 24 Z"
+                  fill="url(#logoGradient)" opacity="0.2"/>
+            <text x="16" y="21" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#ff1493">P</text>
+          </svg>
           <span className="font-semibold text-[#e4e4e7] text-sm whitespace-nowrap">
             CRM Pilar del Espanhol
           </span>
@@ -52,10 +70,41 @@ export default function Header({ search, onSearchChange, onCreateLead }: HeaderP
         </div>
 
         <div className="flex items-center gap-2 ml-auto">
+          {/* Recarregar */}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-sm disabled:opacity-50 ${
+              theme === 'dark'
+                ? 'border-[#2a2a30] text-[#a1a1aa] hover:border-[#3d3d46] hover:text-[#e4e4e7]'
+                : 'border-[#d4d4d8] text-[#52525b] hover:border-[#a1a1aa] hover:text-[#18181b]'
+            }`}
+            title="Recarregar leads"
+          >
+            <RotateCcw size={14} className={refreshing ? 'animate-spin' : ''} />
+          </button>
+
+          {/* Tema */}
+          <button
+            onClick={toggleTheme}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-sm ${
+              theme === 'dark'
+                ? 'border-[#2a2a30] text-[#a1a1aa] hover:border-[#3d3d46] hover:text-[#e4e4e7]'
+                : 'border-[#d4d4d8] text-[#52525b] hover:border-[#a1a1aa] hover:text-[#18181b]'
+            }`}
+            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
+
           {/* Webhooks */}
           <button
             onClick={() => setShowWebhooks(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#2a2a30] text-[#a1a1aa] hover:border-[#3d3d46] hover:text-[#e4e4e7] transition-all text-sm"
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-sm ${
+              theme === 'dark'
+                ? 'border-[#2a2a30] text-[#a1a1aa] hover:border-[#3d3d46] hover:text-[#e4e4e7]'
+                : 'border-[#d4d4d8] text-[#52525b] hover:border-[#a1a1aa] hover:text-[#18181b]'
+            }`}
           >
             <Webhook size={14} />
             <span className="hidden sm:inline">Webhooks</span>
@@ -97,13 +146,30 @@ export default function Header({ search, onSearchChange, onCreateLead }: HeaderP
             </p>
 
             <div className="space-y-4">
+              {/* Webhook Hotmart */}
+              <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-semibold text-[#10b981] bg-[#10b98115] border border-[#10b98130] px-2 py-0.5 rounded-full">
+                    hotmart
+                  </span>
+                  <span className="text-xs text-[#71717a]">Vendas Low Ticket</span>
+                </div>
+                <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
+                  {getBaseUrl()}/api/webhook/hotmart
+                </code>
+                <p className="text-xs text-[#52525b] mt-2">
+                  Configure este URL na Hotmart para receber notificações de vendas. Leads recebem automaticamente a tag{' '}
+                  <strong className="text-[#71717a]">low1 express</strong>.
+                </p>
+              </div>
+
               {/* Webhook Low Ticket */}
               <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs font-semibold text-[#f59e0b] bg-[#f59e0b15] border border-[#f59e0b30] px-2 py-0.5 rounded-full">
                     low1 express
                   </span>
-                  <span className="text-xs text-[#71717a]">Funil Low Ticket</span>
+                  <span className="text-xs text-[#71717a]">Funil Low Ticket (Genérico)</span>
                 </div>
                 <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
                   {getBaseUrl()}/api/webhook/low-ticket

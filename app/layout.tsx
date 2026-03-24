@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { ThemeProvider } from '@/lib/theme-context';
+import ThemeWrapper from '@/components/ThemeWrapper';
 
 export const metadata: Metadata = {
   title: 'CRM Pilar del Espanhol',
@@ -8,9 +10,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className="dark">
-      <body className="bg-[#0d0d0f] text-[#e4e4e7] h-screen flex flex-col overflow-hidden">
-        {children}
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body className="h-screen flex flex-col overflow-hidden">
+        <ThemeProvider>
+          <ThemeWrapper>{children}</ThemeWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

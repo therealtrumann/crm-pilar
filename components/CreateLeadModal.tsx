@@ -118,44 +118,18 @@ export default function CreateLeadModal({
             />
           </div>
 
-          {/* Origem */}
+          {/* Coluna */}
           <div>
-            <label className="block text-xs font-medium text-[#71717a] mb-1.5">Tag de origem</label>
-            <input
-              type="text"
-              value={origem}
-              onChange={e => setOrigem(e.target.value)}
-              placeholder="Ex: instagram, formulário, indicação..."
-              className="w-full bg-[#0d0d0f] border border-[#2a2a30] rounded-lg px-3 py-2.5 text-sm text-[#e4e4e7] placeholder-[#52525b] focus:border-[#7c3aed] transition-colors"
-            />
-          </div>
-
-          {/* Funil + Coluna */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-[#71717a] mb-1.5">Funil</label>
-              <select
-                value={funnel}
-                onChange={e => setFunnel(e.target.value as FunnelId)}
-                className="w-full bg-[#0d0d0f] border border-[#2a2a30] rounded-lg px-3 py-2.5 text-sm text-[#e4e4e7] focus:border-[#7c3aed] transition-colors"
-              >
-                {FUNNELS.map(f => (
-                  <option key={f.id} value={f.id}>{f.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-[#71717a] mb-1.5">Coluna</label>
-              <select
-                value={coluna}
-                onChange={e => setColuna(e.target.value as ColumnId)}
-                className="w-full bg-[#0d0d0f] border border-[#2a2a30] rounded-lg px-3 py-2.5 text-sm text-[#e4e4e7] focus:border-[#7c3aed] transition-colors"
-              >
-                {COLUMNS.map(c => (
-                  <option key={c.id} value={c.id}>{c.label}</option>
-                ))}
-              </select>
-            </div>
+            <label className="block text-xs font-medium text-[#71717a] mb-1.5">Coluna</label>
+            <select
+              value={coluna}
+              onChange={e => setColuna(e.target.value as ColumnId)}
+              className="w-full bg-[#0d0d0f] border border-[#2a2a30] rounded-lg px-3 py-2.5 text-sm text-[#e4e4e7] focus:border-[#7c3aed] transition-colors"
+            >
+              {COLUMNS.map(c => (
+                <option key={c.id} value={c.id}>{c.label}</option>
+              ))}
+            </select>
           </div>
 
           {/* Tags */}

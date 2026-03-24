@@ -100,7 +100,7 @@ export default function Home() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-[#0d0d0f]">
-      <Header search={search} onSearchChange={setSearch} onCreateLead={openCreate} />
+      <Header search={search} onSearchChange={setSearch} onCreateLead={openCreate} onRefresh={fetchLeads} />
 
       <main className="flex-1 px-6 pt-5 overflow-hidden">
         {loading ? (

@@ -30,17 +30,17 @@ export default function LeadCard({ lead, onClick, overlay }: LeadCardProps) {
     <div
       ref={setNodeRef}
       style={overlay ? undefined : style}
-      className={`group relative bg-[#1c1c20] border border-[#2a2a30] rounded-xl p-3.5 cursor-pointer select-none
-        hover:border-[#3d3d46] hover:bg-[#202026] transition-all
+      {...listeners}
+      {...attributes}
+      className={`group relative bg-[#1c1c20] border border-[#2a2a30] rounded-xl p-3.5 cursor-grab select-none
+        hover:border-[#3d3d46] hover:bg-[#202026] transition-all active:cursor-grabbing
         ${overlay ? 'shadow-2xl border-[#7c3aed60] rotate-1 scale-105' : ''}
       `}
       onClick={onClick}
     >
-      {/* Drag handle */}
+      {/* Drag handle indicator */}
       <div
-        {...listeners}
-        {...attributes}
-        className="absolute right-2 top-2 p-1 rounded opacity-0 group-hover:opacity-100 text-[#52525b] hover:text-[#71717a] cursor-grab active:cursor-grabbing transition-opacity"
+        className="absolute right-2 top-2 p-1 rounded opacity-0 group-hover:opacity-100 text-[#52525b] hover:text-[#71717a] transition-opacity"
         onClick={e => e.stopPropagation()}
       >
         <GripVertical size={12} />
