@@ -19,6 +19,7 @@ import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import KanbanColumn from './KanbanColumn';
 import LeadCard from './LeadCard';
 import { Lead, ColumnId, COLUMNS, Tag } from '@/lib/types';
+import { playCashRegisterSound } from '@/lib/sounds';
 
 interface KanbanBoardProps {
   leads: Lead[];
@@ -128,6 +129,11 @@ export default function KanbanBoard({ leads, onLeadMove, onLeadClick, onLeadDele
     if (!originalLead || !movedLead) return;
 
     if (movedLead.coluna !== originalLead.coluna) {
+      // Toca som quando move para Venda realizada
+      if (movedLead.coluna === 'venda-realizada') {
+        playCashRegisterSound();
+      }
+
       // Adiciona tag "aluno-perpetuo" ao mover para Venda realizada
       const merged = originalLead.tags.includes('aluno-perpetuo')
         ? originalLead.tags

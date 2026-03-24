@@ -6,6 +6,8 @@ import { Phone, Calendar, GripVertical, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Lead, TAG_META } from '@/lib/types';
+import { useTheme } from '@/lib/theme-context';
+import { getColors } from '@/lib/theme-utils';
 
 interface LeadCardProps {
   lead: Lead;
@@ -15,6 +17,9 @@ interface LeadCardProps {
 }
 
 export default function LeadCard({ lead, onClick, overlay, isBeingDragged }: LeadCardProps) {
+  const { theme } = useTheme();
+  const colors = getColors(theme);
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
     data: { type: 'card', columnId: lead.coluna },
@@ -33,11 +38,15 @@ export default function LeadCard({ lead, onClick, overlay, isBeingDragged }: Lea
       style={overlay ? undefined : style}
       {...listeners}
       {...attributes}
-      className={`group relative bg-[#1c1c20] border border-[#2a2a30] rounded-xl p-3.5 cursor-grab select-none
-        hover:border-[#3d3d46] hover:bg-[#202026] transition-all active:cursor-grabbing
-        ${overlay ? 'shadow-2xl border-[#7c3aed60] rotate-1 scale-105' : ''}
-      `}
+      className="group relative rounded-xl p-3.5 cursor-grab select-none transition-all active:cursor-grabbing"
       onClick={onClick}
+      style={{
+        ...style,
+        backgroundColor: colors.bgTertiary,
+        borderColor: overlay ? '#7c3aed60' : colors.border,
+        borderWidth: '1px',
+        ...(overlay && { boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)', transform: 'rotate(1deg) scale(1.05)' }),
+      }}
     >
       {/* Drag handle indicator */}
       <div

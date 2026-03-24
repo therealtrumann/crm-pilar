@@ -30,7 +30,11 @@ export default function Header({ search, onSearchChange, onCreateLead, onRefresh
 
   return (
     <>
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-[#1e1e24] bg-[#0d0d0f] shrink-0">
+      <header className={`flex items-center gap-4 px-6 py-4 shrink-0 ${
+        theme === 'dark'
+          ? 'border-[#1e1e24] bg-[#0d0d0f]'
+          : 'border-[#e4e4e7] bg-white'
+      }`}>
         {/* Logo SVG */}
         <div className="flex items-center gap-2 mr-2">
           <svg width="32" height="32" viewBox="0 0 32 32" className="flex-shrink-0">
@@ -44,25 +48,37 @@ export default function Header({ search, onSearchChange, onCreateLead, onRefresh
                   fill="url(#logoGradient)" opacity="0.2"/>
             <text x="16" y="21" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#ff1493">P</text>
           </svg>
-          <span className="font-semibold text-[#e4e4e7] text-sm whitespace-nowrap">
+          <span className={`font-semibold text-sm whitespace-nowrap ${
+            theme === 'dark' ? 'text-[#e4e4e7]' : 'text-[#18181b]'
+          }`}>
             CRM Pilar del Espanhol
           </span>
         </div>
 
         {/* Busca */}
         <div className="relative flex-1 max-w-md">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#52525b]" />
+          <Search size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+            theme === 'dark' ? 'text-[#52525b]' : 'text-[#a1a1aa]'
+          }`} />
           <input
             type="text"
             value={search}
             onChange={e => onSearchChange(e.target.value)}
             placeholder="Buscar por nome ou telefone..."
-            className="w-full bg-[#131316] border border-[#2a2a30] rounded-lg pl-9 pr-3 py-2 text-sm text-[#e4e4e7] placeholder-[#52525b] focus:border-[#7c3aed] transition-colors"
+            className={`w-full rounded-lg pl-9 pr-3 py-2 text-sm transition-colors focus:border-[#7c3aed] ${
+              theme === 'dark'
+                ? 'bg-[#131316] border border-[#2a2a30] text-[#e4e4e7] placeholder-[#52525b]'
+                : 'bg-[#f8f8f9] border border-[#d4d4d8] text-[#18181b] placeholder-[#a1a1aa]'
+            }`}
           />
           {search && (
             <button
               onClick={() => onSearchChange('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#52525b] hover:text-[#a1a1aa]"
+              className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
+                theme === 'dark'
+                  ? 'text-[#52525b] hover:text-[#a1a1aa]'
+                  : 'text-[#a1a1aa] hover:text-[#52525b]'
+              }`}
             >
               <X size={12} />
             </button>
