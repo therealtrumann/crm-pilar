@@ -1,0 +1,100 @@
+'use client';
+
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Phone, Calendar, GripVertical } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { Lead, TAG_META } from '@/lib/types';
+
+interface LeadCardProps {
+  lead: Lead;
+  onClick: () => void;
+  overlay?: boolean;
+}
+
+export default function LeadCard({ lead, onClick, overlay }: LeadCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: lead.id,
+    data: { type: 'card', columnId: lead.coluna },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.35 : 1,
+    zIndex: isDragging ? 999 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={overlay ? undefined : style}
+      className={`group relative bg-[#1c1c20] border border-[#2a2a30] rounded-xl p-3.5 cursor-pointer select-none
+        hover:border-[#3d3d46] hover:bg-[#202026] transition-all
+        ${overlay ? 'shadow-2xl border-[#7c3aed60] rotate-1 scale-105' : ''}
+      `}
+      onClick={onClick}
+    >
+      {/* Drag handle */}
+      <div
+        {...listeners}
+        {...attributes}
+        className="absolute right-2 top-2 p-1 rounded opacity-0 group-hover:opacity-100 text-[#52525b] hover:text-[#71717a] cursor-grab active:cursor-grabbing transition-opacity"
+        onClick={e => e.stopPropagation()}
+      >
+        <GripVertical size={12} />
+      </div>
+
+      {/* Nome */}
+      <p className="text-sm font-medium text-[#e4e4e7] pr-6 leading-snug mb-2 line-clamp-2">
+        {lead.nome}
+      </p>
+
+      {/* Telefone */}
+      {lead.telefone && (
+        <div className="flex items-center gap-1.5 text-xs text-[#71717a] mb-2">
+          <Phone size={10} className="shrink-0" />
+          <span>{lead.telefone}</span>
+        </div>
+      )}
+
+      {/* Tags */}
+      {lead.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {lead.tags.map(tag => {
+            const meta = TAG_META[tag];
+            if (!meta) return null;
+            return (
+              <span
+                key={tag}
+                className="text-xs px-1.5 py-0.5 rounded-full font-medium"
+                style={{
+                  color: meta.color,
+                  backgroundColor: `${meta.color}18`,
+                  border: `1px solid ${meta.color}35`,
+                }}
+              >
+                {meta.label}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Data */}
+      <div className="flex items-center gap-1 text-xs text-[#52525b]">
+        <Calendar size={10} />
+        <span>
+          {format(new Date(lead.data_entrada), "dd 'de' MMM", { locale: ptBR })}
+        </span>
+        {lead.origem && (
+          <>
+            <span className="mx-1">·</span>
+            <span className="truncate max-w-[80px]">{lead.origem}</span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
