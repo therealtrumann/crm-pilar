@@ -88,6 +88,12 @@ export default function Home() {
     await fetchLeads();
   };
 
+  // Deletar lead ao arrastar
+  const handleDeleteFromDrag = async (id: string) => {
+    await fetch(`/api/leads/${id}`, { method: 'DELETE' });
+    await fetchLeads();
+  };
+
   const openCreate = () => {
     setSelectedLead(null);
     setIsModalOpen(true);
@@ -112,6 +118,7 @@ export default function Home() {
             leads={allLeads}
             onLeadMove={handleLeadMove}
             onLeadClick={openEdit}
+            onLeadDelete={handleDeleteFromDrag}
           />
         )}
       </main>

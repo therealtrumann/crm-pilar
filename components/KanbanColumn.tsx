@@ -17,6 +17,8 @@ export default function KanbanColumn({ column, leads, onLeadClick }: KanbanColum
     data: { type: 'column', columnId: column.id },
   });
 
+  const totalValor = leads.reduce((sum, lead) => sum + (lead.valor ?? 0), 0);
+
   return (
     <div className="flex flex-col w-[272px] shrink-0">
       {/* Cabeçalho da coluna */}
@@ -37,6 +39,15 @@ export default function KanbanColumn({ column, leads, onLeadClick }: KanbanColum
           {leads.length}
         </span>
       </div>
+
+      {/* Total de valores */}
+      {totalValor > 0 && (
+        <div className="mb-3 px-2 py-1.5 rounded-lg bg-[#7c3aed15] border border-[#7c3aed30]">
+          <p className="text-xs text-[#7c3aed] font-semibold">
+            Total: R$ {totalValor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+        </div>
+      )}
 
       {/* Zona de drop */}
       <div

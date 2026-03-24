@@ -2,7 +2,7 @@
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Phone, Calendar, GripVertical } from 'lucide-react';
+import { Phone, Calendar, GripVertical, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Lead, TAG_META } from '@/lib/types';
@@ -11,9 +11,10 @@ interface LeadCardProps {
   lead: Lead;
   onClick: () => void;
   overlay?: boolean;
+  isBeingDragged?: boolean;
 }
 
-export default function LeadCard({ lead, onClick, overlay }: LeadCardProps) {
+export default function LeadCard({ lead, onClick, overlay, isBeingDragged }: LeadCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
     data: { type: 'card', columnId: lead.coluna },
@@ -46,10 +47,26 @@ export default function LeadCard({ lead, onClick, overlay }: LeadCardProps) {
         <GripVertical size={12} />
       </div>
 
+      {/* Delete icon (aparece quando arrastando) */}
+      {isBeingDragged && (
+        <div className="absolute right-2 bottom-2 p-1.5 rounded-lg bg-[#ef4444] text-white shadow-lg animate-pulse">
+          <Trash2 size={14} />
+        </div>
+      )}
+
       {/* Nome */}
       <p className="text-sm font-medium text-[#e4e4e7] pr-6 leading-snug mb-2 line-clamp-2">
         {lead.nome}
       </p>
+
+      {/* Valor */}
+      {lead.valor ? (
+        <div className="mb-2 px-2 py-1 rounded-lg bg-[#7c3aed15] border border-[#7c3aed35]">
+          <p className="text-xs font-semibold text-[#7c3aed]">
+            R$ {lead.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+        </div>
+      ) : null}
 
       {/* Telefone */}
       {lead.telefone && (

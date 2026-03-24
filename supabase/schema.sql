@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS leads (
   origem      TEXT        NOT NULL DEFAULT '',
   funnel      TEXT        NOT NULL DEFAULT 'perpetuo'   CHECK (funnel IN ('perpetuo', 'low-ticket')),
   coluna      TEXT        NOT NULL DEFAULT 'novo-lead'  CHECK (coluna IN ('novo-lead', 'fups', 'negociacao', 'venda-realizada', 'perdido')),
+  valor       DECIMAL(10, 2) DEFAULT 0.00,
   data_entrada TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()

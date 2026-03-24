@@ -27,6 +27,7 @@ export default function CreateLeadModal({
   const [funnel,   setFunnel]   = useState<FunnelId>(lead?.funnel ?? 'perpetuo');
   const [coluna,   setColuna]   = useState<ColumnId>(lead?.coluna ?? 'novo-lead');
   const [tags,     setTags]     = useState<Tag[]>(lead?.tags ?? []);
+  const [valor,    setValor]    = useState(lead?.valor?.toString() ?? '');
   const [loading,  setLoading]  = useState(false);
   const [confirm,  setConfirm]  = useState(false);
 
@@ -38,6 +39,7 @@ export default function CreateLeadModal({
       setFunnel(lead.funnel);
       setColuna(lead.coluna);
       setTags(lead.tags);
+      setValor(lead.valor?.toString() ?? '');
     }
   }, [lead]);
 
@@ -51,7 +53,8 @@ export default function CreateLeadModal({
     if (!nome.trim()) return;
     setLoading(true);
     try {
-      await onSave({ nome: nome.trim(), telefone, origem, funnel, coluna, tags });
+      const valorNum = valor ? parseFloat(valor) : 0;
+      await onSave({ nome: nome.trim(), telefone, origem, funnel, coluna, tags, valor: valorNum > 0 ? valorNum : undefined });
       onRefresh();
     } finally {
       setLoading(false);
@@ -130,6 +133,20 @@ export default function CreateLeadModal({
                 <option key={c.id} value={c.id}>{c.label}</option>
               ))}
             </select>
+          </div>
+
+          {/* Valor */}
+          <div>
+            <label className="block text-xs font-medium text-[#71717a] mb-1.5">Valor (R$)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={valor}
+              onChange={e => setValor(e.target.value)}
+              placeholder="Ex: 497.00"
+              className="w-full bg-[#0d0d0f] border border-[#2a2a30] rounded-lg px-3 py-2.5 text-sm text-[#e4e4e7] placeholder-[#52525b] focus:border-[#7c3aed] transition-colors"
+            />
           </div>
 
           {/* Tags */}

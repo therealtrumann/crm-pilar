@@ -10,6 +10,7 @@ export interface Lead {
   origem: string;
   funnel: FunnelId;
   coluna: ColumnId;
+  valor?: number;
   data_entrada: string;
   created_at: string;
   updated_at: string;
