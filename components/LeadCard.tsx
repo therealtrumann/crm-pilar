@@ -35,7 +35,6 @@ export default function LeadCard({ lead, onClick, overlay, isBeingDragged }: Lea
   return (
     <div
       ref={setNodeRef}
-      style={overlay ? undefined : style}
       {...listeners}
       {...attributes}
       className="group relative rounded-xl p-3.5 cursor-grab select-none transition-all active:cursor-grabbing"
@@ -45,6 +44,8 @@ export default function LeadCard({ lead, onClick, overlay, isBeingDragged }: Lea
         backgroundColor: colors.bgTertiary,
         borderColor: overlay ? '#7c3aed60' : colors.border,
         borderWidth: '1px',
+        opacity: isDragging ? 0.35 : 1,
+        zIndex: isDragging ? 999 : undefined,
         ...(overlay && { boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)', transform: 'rotate(1deg) scale(1.05)' }),
       }}
     >
