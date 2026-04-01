@@ -9,12 +9,25 @@ export async function GET(request: NextRequest) {
   const funnel = searchParams.get('funnel');
   const search = searchParams.get('search');
 
+  const board = searchParams.get('board');
+
   let query = supabase
     .from('leads')
     .select('*')
     .order('created_at', { ascending: false });
 
   if (funnel) query = query.eq('funnel', funnel);
+
+  // Filtro por board — usa funnel + tag para isolar Pilar e Revora
+  if (board === 'revora') {
+    // Revora: funnel='revora' OU tag 'aplicacao-direta' (cobre fallback pré-migration)
+    query = query.or(`funnel.eq.revora,tags.cs.{"aplicacao-direta"}`);
+  } else if (board === 'pilar') {
+    // Pilar: funnels Pilar E não tem tag 'aplicacao-direta'
+    query = query
+      .in('funnel', ['perpetuo', 'low-ticket', 'low2'])
+      .not('tags', 'cs', '{"aplicacao-direta"}');
+  }
 
   if (search) {
     query = query.or(

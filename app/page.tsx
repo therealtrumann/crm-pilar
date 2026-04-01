@@ -19,26 +19,23 @@ export default function Home() {
 
   const currentBoard = BOARDS.find(b => b.id === selectedBoard)!;
 
-  // Leads filtrados pelo board atual.
-  // Revora: aceita funnel='revora' OU tag='aplicacao-direta' (fallback pré-migration).
-  // Pilar: exclui leads com tag='aplicacao-direta' para evitar duplicidade.
-  const boardLeads = allLeads.filter(l => {
-    if (currentBoard.id === 'revora') {
-      return l.funnel === 'revora' || l.tags.includes('aplicacao-direta');
-    }
-    return currentBoard.funnels.includes(l.funnel) && !l.tags.includes('aplicacao-direta');
-  });
+  // Ao trocar de aba, mostra loading enquanto carrega os leads do novo board
+  const handleBoardChange = (id: BoardId) => {
+    setSelectedBoard(id);
+    setLoading(true);
+  };
 
-  // Buscar leads
+  // Buscar leads — filtragem por board feita no servidor (mais confiável)
   const fetchLeads = useCallback(async () => {
     const params = new URLSearchParams();
+    params.set('board', selectedBoard);
     if (search) params.set('search', search);
 
     const res  = await fetch(`/api/leads?${params}`);
     const data = await res.json();
     setAllLeads(Array.isArray(data) ? data : []);
     setLoading(false);
-  }, [search]);
+  }, [search, selectedBoard]);
 
   useEffect(() => {
     fetchLeads();
@@ -133,7 +130,7 @@ export default function Home() {
         {BOARDS.map(board => (
           <button
             key={board.id}
-            onClick={() => setSelectedBoard(board.id)}
+            onClick={() => handleBoardChange(board.id)}
             className={`px-5 py-2.5 text-sm font-medium transition-all border-b-2 -mb-px ${
               selectedBoard === board.id
                 ? theme === 'dark'
@@ -159,7 +156,7 @@ export default function Home() {
         ) : (
           <KanbanBoard
             key={selectedBoard}
-            leads={boardLeads}
+            leads={allLeads}
             columns={currentBoard.columns}
             onLeadMove={handleLeadMove}
             onLeadClick={openEdit}
