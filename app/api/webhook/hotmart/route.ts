@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
           tags: ['low1-express'],
           origem,
           funnel: 'low-ticket',
-          coluna: 'novo-lead',
+          coluna: 'lead-low1',
           data_entrada: new Date().toISOString(),
         },
       ])

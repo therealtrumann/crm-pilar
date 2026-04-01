@@ -4,9 +4,9 @@ import { createServiceClient } from '@/lib/supabase';
 export const dynamic = 'force-dynamic';
 
 /**
- * Webhook — Funil Low Ticket (Low1 Express)
- * Leads recebidos aqui ganham automaticamente a tag "low1-express"
- * e são inseridos na coluna "Lead Low1".
+ * Webhook — Funil Low2 Viagens
+ * Leads recebidos aqui ganham automaticamente a tag "low2-viagens"
+ * e são inseridos na coluna "Lead Low2".
  *
  * Campos aceitos no payload JSON:
  *   nome | name | full_name | contact_name
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     const nome     = body.nome || body.name || body.full_name || body.contact_name || 'Lead sem nome';
     const telefone = body.telefone || body.phone || body.whatsapp || body.mobile || '';
-    const origem   = body.origem || body.source || body.utm_source || 'webhook-low-ticket';
+    const origem   = body.origem || body.source || body.utm_source || 'webhook-low2-viagens';
 
     const { data, error } = await supabase
       .from('leads')
@@ -29,10 +29,10 @@ export async function POST(request: NextRequest) {
         {
           nome,
           telefone,
-          tags:         ['low1-express'],
+          tags:         ['low2-viagens'],
           origem,
-          funnel:       'low-ticket',
-          coluna:       'lead-low1',
+          funnel:       'low2',
+          coluna:       'lead-low2',
           data_entrada: new Date().toISOString(),
         },
       ])
@@ -40,13 +40,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('[webhook/low-ticket] Supabase error:', error);
+      console.error('[webhook/low2] Supabase error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, lead: data }, { status: 201 });
   } catch (err) {
-    console.error('[webhook/low-ticket] Parse error:', err);
+    console.error('[webhook/low2] Parse error:', err);
     return NextResponse.json({ error: 'Payload inválido' }, { status: 400 });
   }
 }

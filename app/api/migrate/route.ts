@@ -12,12 +12,17 @@ export async function POST() {
     const supabase = createServiceClient();
 
     // Executar SQL para adicionar coluna se não existir
-    const { data, error } = await supabase.rpc('execute_sql', {
-      sql: 'ALTER TABLE leads ADD COLUMN IF NOT EXISTS valor DECIMAL(10, 2) DEFAULT 0.00;',
-    }).catch(() => {
-      // Se rpc não existir, tentar outra abordagem
-      return { data: null, error: null };
-    });
+    let data: unknown = null;
+    let error: unknown = null;
+    try {
+      const result = await supabase.rpc('execute_sql', {
+        sql: 'ALTER TABLE leads ADD COLUMN IF NOT EXISTS valor DECIMAL(10, 2) DEFAULT 0.00;',
+      });
+      data = result.data;
+      error = result.error;
+    } catch {
+      // Se rpc não existir, continuar com abordagem alternativa
+    }
 
     // Alternativa: verificar os campos da tabela
     const { data: columns, error: columnsError } = await supabase
