@@ -18,7 +18,7 @@ import {
 import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import KanbanColumn from './KanbanColumn';
 import LeadCard from './LeadCard';
-import { Lead, ColumnId, COLUMNS, Tag } from '@/lib/types';
+import { Lead, ColumnId, KanbanColumnDef, Tag } from '@/lib/types';
 import { playCashRegisterSound } from '@/lib/sounds';
 
 /**
@@ -39,6 +39,7 @@ function normalizeLeads(leads: Lead[]): Lead[] {
 
 interface KanbanBoardProps {
   leads: Lead[];
+  columns: KanbanColumnDef[];
   onLeadMove: (leadId: string, newColumn: ColumnId, tags: Tag[]) => void;
   onLeadClick: (lead: Lead) => void;
   onLeadDelete?: (leadId: string) => Promise<void>;
@@ -61,7 +62,7 @@ function DeleteZone() {
   );
 }
 
-export default function KanbanBoard({ leads, onLeadMove, onLeadClick, onLeadDelete }: KanbanBoardProps) {
+export default function KanbanBoard({ leads, columns, onLeadMove, onLeadClick, onLeadDelete }: KanbanBoardProps) {
   const [localLeads, setLocalLeads] = useState<Lead[]>(() => normalizeLeads(leads));
   const [activeId, setActiveId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
@@ -95,7 +96,7 @@ export default function KanbanBoard({ leads, onLeadMove, onLeadClick, onLeadDele
     const activeColumn = findColumnOfItem(activeId);
 
     // Determinar a coluna de destino
-    const isOverColumn = COLUMNS.some(c => c.id === overId);
+    const isOverColumn = columns.some(c => c.id === overId);
     const overColumn   = isOverColumn
       ? (overId as ColumnId)
       : findColumnOfItem(overId);
@@ -183,7 +184,7 @@ export default function KanbanBoard({ leads, onLeadMove, onLeadClick, onLeadDele
         onDragEnd={handleDragEnd}
       >
         <div className="flex gap-4 h-full overflow-x-auto pb-2">
-          {COLUMNS.map(col => (
+          {columns.map(col => (
             <KanbanColumn
               key={col.id}
               column={col}

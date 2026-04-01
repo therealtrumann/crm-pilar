@@ -6,8 +6,10 @@ export const dynamic = 'force-dynamic';
 // Colunas novas que o DB pode ainda não aceitar via constraint
 // (fallback enquanto a migration não for executada no Supabase)
 const COLUNA_DB_FALLBACK: Record<string, string> = {
-  'lead-low1': 'novo-lead',
-  'lead-low2': 'novo-lead',
+  'lead-low1':   'novo-lead',
+  'lead-low2':   'novo-lead',
+  'agendado':    'fups',
+  'fup-pos-call':'fups',
 };
 
 export async function PATCH(

@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { X, Trash2 } from 'lucide-react';
-import { Lead, FunnelId, ColumnId, Tag, COLUMNS, FUNNELS, ALL_TAGS, TAG_META } from '@/lib/types';
+import { Lead, FunnelId, ColumnId, Tag, KanbanColumnDef, ALL_TAGS, TAG_META } from '@/lib/types';
 
 interface CreateLeadModalProps {
   lead: Lead | null;
+  boardColumns: KanbanColumnDef[];
+  defaultFunnel: FunnelId;
+  defaultColuna: ColumnId;
   onClose: () => void;
   onSave: (data: Partial<Lead>) => Promise<void>;
   onDelete?: (id: string) => Promise<void>;
@@ -14,6 +17,9 @@ interface CreateLeadModalProps {
 
 export default function CreateLeadModal({
   lead,
+  boardColumns,
+  defaultFunnel,
+  defaultColuna,
   onClose,
   onSave,
   onDelete,
@@ -24,8 +30,8 @@ export default function CreateLeadModal({
   const [nome,     setNome]     = useState(lead?.nome     ?? '');
   const [telefone, setTelefone] = useState(lead?.telefone ?? '');
   const [origem,   setOrigem]   = useState(lead?.origem   ?? '');
-  const [funnel,   setFunnel]   = useState<FunnelId>(lead?.funnel ?? 'perpetuo');
-  const [coluna,   setColuna]   = useState<ColumnId>(lead?.coluna ?? 'novo-lead');
+  const [funnel,   setFunnel]   = useState<FunnelId>(lead?.funnel ?? defaultFunnel);
+  const [coluna,   setColuna]   = useState<ColumnId>(lead?.coluna ?? defaultColuna);
   const [tags,     setTags]     = useState<Tag[]>(lead?.tags ?? []);
   const [valor,    setValor]    = useState(lead?.valor?.toString() ?? '');
   const [loading,  setLoading]  = useState(false);
@@ -129,7 +135,7 @@ export default function CreateLeadModal({
               onChange={e => setColuna(e.target.value as ColumnId)}
               className="w-full bg-[#0d0d0f] border border-[#2a2a30] rounded-lg px-3 py-2.5 text-sm text-[#e4e4e7] focus:border-[#7c3aed] transition-colors"
             >
-              {COLUMNS.map(c => (
+              {boardColumns.map(c => (
                 <option key={c.id} value={c.id}>{c.label}</option>
               ))}
             </select>

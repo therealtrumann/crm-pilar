@@ -2,7 +2,7 @@
 
 import { Search, Plus, Webhook, X, RotateCcw, Moon, Sun } from 'lucide-react';
 import { useState } from 'react';
-import { FUNNELS } from '@/lib/types';
+import { BoardId } from '@/lib/types';
 import { useTheme } from '@/lib/theme-context';
 
 interface HeaderProps {
@@ -10,9 +10,10 @@ interface HeaderProps {
   onSearchChange: (v: string) => void;
   onCreateLead: () => void;
   onRefresh?: () => void;
+  selectedBoard?: BoardId;
 }
 
-export default function Header({ search, onSearchChange, onCreateLead, onRefresh }: HeaderProps) {
+export default function Header({ search, onSearchChange, onCreateLead, onRefresh, selectedBoard = 'pilar' }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const [showWebhooks, setShowWebhooks] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -161,81 +162,85 @@ export default function Header({ search, onSearchChange, onCreateLead, onRefresh
               Configure estes URLs nas plataformas para receber leads automaticamente.
             </p>
 
-            <div className="space-y-4">
-              {/* Webhook Low Ticket (Low1 Express) */}
-              <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-[#f59e0b] bg-[#f59e0b15] border border-[#f59e0b30] px-2 py-0.5 rounded-full">
-                    low1 express
-                  </span>
-                  <span className="text-xs text-[#71717a]">Lead Low1 — Funil Low Ticket</span>
+            {/* Webhooks — Pilar */}
+            {selectedBoard === 'pilar' && (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold text-[#f59e0b] bg-[#f59e0b15] border border-[#f59e0b30] px-2 py-0.5 rounded-full">low1 express</span>
+                    <span className="text-xs text-[#71717a]">Lead Low1 — Funil Low Ticket</span>
+                  </div>
+                  <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
+                    {getBaseUrl()}/api/webhook/low-ticket
+                  </code>
+                  <p className="text-xs text-[#52525b] mt-2">
+                    Tag <strong className="text-[#71717a]">low1 express</strong> · coluna <strong className="text-[#71717a]">Lead Low1</strong>.
+                  </p>
                 </div>
-                <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
-                  {getBaseUrl()}/api/webhook/low-ticket
-                </code>
-                <p className="text-xs text-[#52525b] mt-2">
-                  Leads recebem automaticamente a tag <strong className="text-[#71717a]">low1 express</strong> e vão para a coluna <strong className="text-[#71717a]">Lead Low1</strong>.
-                </p>
-              </div>
 
-              {/* Webhook Hotmart */}
-              <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-[#10b981] bg-[#10b98115] border border-[#10b98130] px-2 py-0.5 rounded-full">
-                    hotmart
-                  </span>
-                  <span className="text-xs text-[#71717a]">Lead Low1 — Vendas Hotmart</span>
+                <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold text-[#10b981] bg-[#10b98115] border border-[#10b98130] px-2 py-0.5 rounded-full">hotmart</span>
+                    <span className="text-xs text-[#71717a]">Lead Low1 — Vendas Hotmart</span>
+                  </div>
+                  <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
+                    {getBaseUrl()}/api/webhook/hotmart
+                  </code>
+                  <p className="text-xs text-[#52525b] mt-2">
+                    Tag <strong className="text-[#71717a]">low1 express</strong> · coluna <strong className="text-[#71717a]">Lead Low1</strong>.
+                  </p>
                 </div>
-                <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
-                  {getBaseUrl()}/api/webhook/hotmart
-                </code>
-                <p className="text-xs text-[#52525b] mt-2">
-                  Configure na Hotmart para receber notificações de vendas. Leads recebem a tag{' '}
-                  <strong className="text-[#71717a]">low1 express</strong> e vão para <strong className="text-[#71717a]">Lead Low1</strong>.
-                </p>
-              </div>
 
-              {/* Webhook Low2 Viagens */}
-              <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-[#06b6d4] bg-[#06b6d415] border border-[#06b6d430] px-2 py-0.5 rounded-full">
-                    low2 viagens
-                  </span>
-                  <span className="text-xs text-[#71717a]">Lead Low2 — Funil Low2 Viagens</span>
+                <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold text-[#06b6d4] bg-[#06b6d415] border border-[#06b6d430] px-2 py-0.5 rounded-full">low2 viagens</span>
+                    <span className="text-xs text-[#71717a]">Lead Low2 — Funil Low2 Viagens</span>
+                  </div>
+                  <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
+                    {getBaseUrl()}/api/webhook/low2
+                  </code>
+                  <p className="text-xs text-[#52525b] mt-2">
+                    Tag <strong className="text-[#71717a]">low2 viagens</strong> · coluna <strong className="text-[#71717a]">Lead Low2</strong>.
+                  </p>
                 </div>
-                <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
-                  {getBaseUrl()}/api/webhook/low2
-                </code>
-                <p className="text-xs text-[#52525b] mt-2">
-                  Leads recebem automaticamente a tag <strong className="text-[#71717a]">low2 viagens</strong> e vão para a coluna <strong className="text-[#71717a]">Lead Low2</strong>.
-                </p>
-              </div>
 
-              {/* Webhook Perpétuo */}
-              <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-[#8b5cf6] bg-[#8b5cf615] border border-[#8b5cf630] px-2 py-0.5 rounded-full">
-                    lead perpétuo
-                  </span>
-                  <span className="text-xs text-[#71717a]">Lead Perpétuo — PlugLead</span>
+                <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold text-[#8b5cf6] bg-[#8b5cf615] border border-[#8b5cf630] px-2 py-0.5 rounded-full">lead perpétuo</span>
+                    <span className="text-xs text-[#71717a]">Lead Perpétuo — PlugLead</span>
+                  </div>
+                  <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
+                    {getBaseUrl()}/api/webhook/perpetuo
+                  </code>
+                  <p className="text-xs text-[#52525b] mt-2">
+                    Tag <strong className="text-[#71717a]">lead perpétuo</strong> · coluna <strong className="text-[#71717a]">Lead Perpétuo</strong>.
+                  </p>
+                  <div className="mt-2 p-2 rounded-lg bg-[#8b5cf610] border border-[#8b5cf620]">
+                    <p className="text-xs text-[#8b5cf6]">
+                      Origem PlugLead: <span className="opacity-70 break-all">webhook.pluglead.com/webhook/a40dc6fa-aa9d-46e9-a267-ddc8ae8ee982</span>
+                    </p>
+                  </div>
                 </div>
-                <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
-                  {getBaseUrl()}/api/webhook/perpetuo
-                </code>
-                <p className="text-xs text-[#52525b] mt-2">
-                  Configure no PlugLead. Leads recebem a tag{' '}
-                  <strong className="text-[#71717a]">lead perpétuo</strong> e vão para a coluna <strong className="text-[#71717a]">Lead Perpétuo</strong>.
-                </p>
-                <div className="mt-2 p-2 rounded-lg bg-[#8b5cf610] border border-[#8b5cf620]">
-                  <p className="text-xs text-[#8b5cf6]">
-                    Origem PlugLead:{' '}
-                    <span className="opacity-70 break-all">
-                      webhook.pluglead.com/webhook/a40dc6fa-aa9d-46e9-a267-ddc8ae8ee982
-                    </span>
+              </div>
+            )}
+
+            {/* Webhooks — Revora */}
+            {selectedBoard === 'revora' && (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-[#2a2a30] p-4 bg-[#0d0d0f]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold text-[#3b82f6] bg-[#3b82f615] border border-[#3b82f630] px-2 py-0.5 rounded-full">aplicação direta</span>
+                    <span className="text-xs text-[#71717a]">Novos Leads — Revora</span>
+                  </div>
+                  <code className="block text-xs text-[#a1a1aa] bg-[#131316] rounded-lg p-3 border border-[#1e1e24] break-all">
+                    {getBaseUrl()}/api/webhook/aplicacao-direta
+                  </code>
+                  <p className="text-xs text-[#52525b] mt-2">
+                    Tag <strong className="text-[#71717a]">aplicação direta</strong> · coluna <strong className="text-[#71717a]">Novos Leads</strong>.
                   </p>
                 </div>
               </div>
-            </div>
+            )}
 
             <p className="text-xs text-[#52525b] mt-4">
               Método: <strong>POST</strong> · Content-Type: <strong>application/json</strong> ·

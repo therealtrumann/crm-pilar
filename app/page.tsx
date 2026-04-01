@@ -1,18 +1,26 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Lead, ColumnId, Tag } from '@/lib/types';
+import { Lead, ColumnId, Tag, BoardId, BOARDS } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import KanbanBoard from '@/components/KanbanBoard';
 import CreateLeadModal from '@/components/CreateLeadModal';
+import { useTheme } from '@/lib/theme-context';
 
 export default function Home() {
+  const { theme } = useTheme();
   const [allLeads,        setAllLeads]        = useState<Lead[]>([]);
   const [search,          setSearch]          = useState('');
   const [isModalOpen,     setIsModalOpen]     = useState(false);
   const [selectedLead,    setSelectedLead]    = useState<Lead | null>(null);
   const [loading,         setLoading]         = useState(true);
+  const [selectedBoard,   setSelectedBoard]   = useState<BoardId>('pilar');
+
+  const currentBoard = BOARDS.find(b => b.id === selectedBoard)!;
+
+  // Leads filtrados pelo board atual
+  const boardLeads = allLeads.filter(l => currentBoard.funnels.includes(l.funnel));
 
   // Buscar leads
   const fetchLeads = useCallback(async () => {
@@ -43,7 +51,6 @@ export default function Home() {
 
   // Mover card entre colunas
   const handleLeadMove = async (leadId: string, newColumn: ColumnId, tags: Tag[]) => {
-    // Atualizar local imediatamente (otimista)
     setAllLeads(prev =>
       prev.map(l =>
         l.id === leadId ? { ...l, coluna: newColumn, tags } : l
@@ -60,14 +67,12 @@ export default function Home() {
   // Criar ou editar lead
   const handleSaveLead = async (formData: Partial<Lead>) => {
     if (selectedLead) {
-      // Editar
       await fetch(`/api/leads/${selectedLead.id}`, {
         method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(formData),
       });
     } else {
-      // Criar
       await fetch('/api/leads', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,7 +85,6 @@ export default function Home() {
     await fetchLeads();
   };
 
-  // Deletar lead
   const handleDeleteLead = async (id: string) => {
     await fetch(`/api/leads/${id}`, { method: 'DELETE' });
     setIsModalOpen(false);
@@ -88,7 +92,6 @@ export default function Home() {
     await fetchLeads();
   };
 
-  // Deletar lead ao arrastar
   const handleDeleteFromDrag = async (id: string) => {
     await fetch(`/api/leads/${id}`, { method: 'DELETE' });
     await fetchLeads();
@@ -105,17 +108,52 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[#0d0d0f]">
-      <Header search={search} onSearchChange={setSearch} onCreateLead={openCreate} onRefresh={fetchLeads} />
+    <div className={`h-screen flex flex-col overflow-hidden ${
+      theme === 'dark' ? 'bg-[#0d0d0f]' : 'bg-[#f4f4f5]'
+    }`}>
+      <Header
+        search={search}
+        onSearchChange={setSearch}
+        onCreateLead={openCreate}
+        onRefresh={fetchLeads}
+        selectedBoard={selectedBoard}
+      />
+
+      {/* Abas de board */}
+      <div className={`flex items-end gap-0 px-6 shrink-0 border-b ${
+        theme === 'dark' ? 'border-[#1e1e24]' : 'border-[#e4e4e7]'
+      }`}>
+        {BOARDS.map(board => (
+          <button
+            key={board.id}
+            onClick={() => setSelectedBoard(board.id)}
+            className={`px-5 py-2.5 text-sm font-medium transition-all border-b-2 -mb-px ${
+              selectedBoard === board.id
+                ? theme === 'dark'
+                  ? 'text-[#e4e4e7] border-[#7c3aed]'
+                  : 'text-[#18181b] border-[#7c3aed]'
+                : theme === 'dark'
+                  ? 'text-[#52525b] border-transparent hover:text-[#a1a1aa]'
+                  : 'text-[#a1a1aa] border-transparent hover:text-[#52525b]'
+            }`}
+          >
+            {board.label}
+          </button>
+        ))}
+      </div>
 
       <main className="flex-1 px-6 pt-5 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-sm text-[#52525b] animate-pulse">Carregando leads...</div>
+            <div className={`text-sm animate-pulse ${
+              theme === 'dark' ? 'text-[#52525b]' : 'text-[#a1a1aa]'
+            }`}>Carregando leads...</div>
           </div>
         ) : (
           <KanbanBoard
-            leads={allLeads}
+            key={selectedBoard}
+            leads={boardLeads}
+            columns={currentBoard.columns}
             onLeadMove={handleLeadMove}
             onLeadClick={openEdit}
             onLeadDelete={handleDeleteFromDrag}
@@ -126,6 +164,9 @@ export default function Home() {
       {isModalOpen && (
         <CreateLeadModal
           lead={selectedLead}
+          boardColumns={currentBoard.columns}
+          defaultFunnel={currentBoard.defaultFunnel}
+          defaultColuna={currentBoard.defaultColuna}
           onClose={() => { setIsModalOpen(false); setSelectedLead(null); }}
           onSave={handleSaveLead}
           onDelete={handleDeleteLead}
