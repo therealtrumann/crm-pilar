@@ -117,21 +117,31 @@ export async function POST(request: NextRequest) {
 
     console.log('[webhook/low-ticket] extraído → nome:', nome, '| telefone:', telefone, '| origem:', origem);
 
-    const { data, error } = await supabase
+    const leadPayload = {
+      nome,
+      telefone,
+      tags:         ['low1-express'],
+      origem,
+      funnel:       'low-ticket',
+      data_entrada: new Date().toISOString(),
+    };
+
+    // Tenta inserir na coluna lead-low1; se o constraint ainda não foi migrado,
+    // cai para 'novo-lead' (o frontend normaliza pela tag low1-express)
+    let { data, error } = await supabase
       .from('leads')
-      .insert([
-        {
-          nome,
-          telefone,
-          tags:         ['low1-express'],
-          origem,
-          funnel:       'low-ticket',
-          coluna:       'lead-low1',
-          data_entrada: new Date().toISOString(),
-        },
-      ])
+      .insert([{ ...leadPayload, coluna: 'lead-low1' }])
       .select()
       .single();
+
+    if (error && (error.code === '23514' || error.message?.includes('violates check constraint'))) {
+      console.warn('[webhook/low-ticket] constraint não migrado, usando novo-lead como fallback');
+      ({ data, error } = await supabase
+        .from('leads')
+        .insert([{ ...leadPayload, coluna: 'novo-lead' }])
+        .select()
+        .single());
+    }
 
     if (error) {
       console.error('[webhook/low-ticket] Supabase error:', error);

@@ -27,21 +27,29 @@ export async function POST(request: NextRequest) {
     const telefone = customer.phone || customer.telefone || body.buyer_phone || '';
     const origem = `hotmart - ${body.product?.name || 'venda'}`;
 
-    const { data, error } = await supabase
+    const leadPayload = {
+      nome,
+      telefone,
+      tags: ['low1-express'],
+      origem,
+      funnel: 'low-ticket',
+      data_entrada: new Date().toISOString(),
+    };
+
+    let { data, error } = await supabase
       .from('leads')
-      .insert([
-        {
-          nome,
-          telefone,
-          tags: ['low1-express'],
-          origem,
-          funnel: 'low-ticket',
-          coluna: 'lead-low1',
-          data_entrada: new Date().toISOString(),
-        },
-      ])
+      .insert([{ ...leadPayload, coluna: 'lead-low1' }])
       .select()
       .single();
+
+    if (error && (error.code === '23514' || error.message?.includes('violates check constraint'))) {
+      console.warn('[webhook/hotmart] constraint não migrado, usando novo-lead como fallback');
+      ({ data, error } = await supabase
+        .from('leads')
+        .insert([{ ...leadPayload, coluna: 'novo-lead' }])
+        .select()
+        .single());
+    }
 
     if (error) {
       console.error('[webhook/hotmart] Supabase error:', error);
