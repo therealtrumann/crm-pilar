@@ -19,8 +19,15 @@ export default function Home() {
 
   const currentBoard = BOARDS.find(b => b.id === selectedBoard)!;
 
-  // Leads filtrados pelo board atual
-  const boardLeads = allLeads.filter(l => currentBoard.funnels.includes(l.funnel));
+  // Leads filtrados pelo board atual.
+  // Revora: aceita funnel='revora' OU tag='aplicacao-direta' (fallback pré-migration).
+  // Pilar: exclui leads com tag='aplicacao-direta' para evitar duplicidade.
+  const boardLeads = allLeads.filter(l => {
+    if (currentBoard.id === 'revora') {
+      return l.funnel === 'revora' || l.tags.includes('aplicacao-direta');
+    }
+    return currentBoard.funnels.includes(l.funnel) && !l.tags.includes('aplicacao-direta');
+  });
 
   // Buscar leads
   const fetchLeads = useCallback(async () => {

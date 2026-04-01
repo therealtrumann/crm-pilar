@@ -67,25 +67,42 @@ export async function POST(request: NextRequest) {
       nested.map(o => pick(o, phoneKeys)).find(v => v) ||
       '';
 
-    const origem =
-      pick(body, ['origem','source','utm_source','utm_medium','campaign']) ||
-      'webhook-aplicacao-direta';
+    // Monta origem: prioriza campo de origem, senão concatena campos extras do formulário
+    const origemBase = pick(body, ['origem','source','utm_source','utm_medium','campaign']);
+    const extraKeys  = ['cargo','produto','time_comercial','dor_comercial','segmento','empresa','cargo_funcao'];
+    const extras     = extraKeys
+      .filter(k => body[k])
+      .map(k => `${k}: ${body[k]}`)
+      .join(' | ');
+    const origem = origemBase || extras || 'webhook-aplicacao-direta';
 
-    console.log('[webhook/aplicacao-direta] extraído → nome:', nome, '| telefone:', telefone);
+    console.log('[webhook/aplicacao-direta] extraído → nome:', nome, '| telefone:', telefone, '| origem:', origem);
 
-    const { data, error } = await supabase
+    const leadPayload = {
+      nome,
+      telefone,
+      tags:         ['aplicacao-direta'],
+      origem,
+      coluna:       'novo-lead',
+      data_entrada: new Date().toISOString(),
+    };
+
+    // Tenta inserir com funnel 'revora'; se constraint ainda não migrado,
+    // cai para 'perpetuo' (o frontend filtra pela tag aplicacao-direta)
+    let { data, error } = await supabase
       .from('leads')
-      .insert([{
-        nome,
-        telefone,
-        tags:         ['aplicacao-direta'],
-        origem,
-        funnel:       'revora',
-        coluna:       'novo-lead',
-        data_entrada: new Date().toISOString(),
-      }])
+      .insert([{ ...leadPayload, funnel: 'revora' }])
       .select()
       .single();
+
+    if (error && (error.code === '23514' || error.message?.includes('violates check constraint'))) {
+      console.warn('[webhook/aplicacao-direta] constraint de funil não migrado, usando perpetuo como fallback');
+      ({ data, error } = await supabase
+        .from('leads')
+        .insert([{ ...leadPayload, funnel: 'perpetuo' }])
+        .select()
+        .single());
+    }
 
     if (error) {
       console.error('[webhook/aplicacao-direta] Supabase error:', error);
