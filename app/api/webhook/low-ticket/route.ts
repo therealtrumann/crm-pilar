@@ -24,7 +24,9 @@ function extractField(obj: any, keys: string[]): string {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function extractNome(body: any): string {
-  // Tentativas diretas
+  // Guard contra recursão infinita com undefined/null/primitivos
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return '';
+
   const direct = extractField(body, [
     'nome', 'name', 'full_name', 'fullName', 'contact_name', 'contactName',
     'first_name', 'firstName', 'lead_name', 'leadName',
@@ -40,13 +42,22 @@ function extractNome(body: any): string {
   if (first && last) return `${first} ${last}`;
   if (first) return first;
 
-  // Objetos aninhados comuns
+  // Objetos aninhados comuns (incluindo body.data.buyer do formato Hotmart v2)
   const nested = [
-    body?.customer, body?.contact, body?.lead, body?.data,
-    body?.buyer, body?.subscriber, body?.client, body?.user,
-    body?.dados, body?.dados_cliente, body?.personal_data,
+    body.data,        // Hotmart v2: { data: { buyer: { name, ... } } }
+    body.buyer,
+    body.customer,
+    body.contact,
+    body.lead,
+    body.subscriber,
+    body.client,
+    body.user,
+    body.dados,
+    body.dados_cliente,
+    body.personal_data,
   ];
   for (const obj of nested) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) continue;
     const val = extractNome(obj);
     if (val) return val;
   }
@@ -56,6 +67,9 @@ function extractNome(body: any): string {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function extractTelefone(body: any): string {
+  // Guard contra recursão infinita com undefined/null/primitivos
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return '';
+
   const direct = extractField(body, [
     'telefone', 'phone', 'whatsapp', 'mobile', 'celular', 'fone', 'tel',
     'phone_number', 'phoneNumber', 'mobile_phone', 'mobilePhone',
@@ -63,15 +77,25 @@ function extractTelefone(body: any): string {
     'customer_phone', 'customerPhone', 'client_phone', 'clientPhone',
     'buyer_phone', 'buyerPhone', 'Telefone', 'Phone', 'TELEFONE',
     'whatsapp_number', 'whatsappNumber', 'numero', 'number',
+    'checkout_phone',  // Hotmart v2
   ]);
   if (direct) return direct;
 
   const nested = [
-    body?.customer, body?.contact, body?.lead, body?.data,
-    body?.buyer, body?.subscriber, body?.client, body?.user,
-    body?.dados, body?.dados_cliente, body?.personal_data,
+    body.data,        // Hotmart v2: { data: { buyer: { checkout_phone, ... } } }
+    body.buyer,
+    body.customer,
+    body.contact,
+    body.lead,
+    body.subscriber,
+    body.client,
+    body.user,
+    body.dados,
+    body.dados_cliente,
+    body.personal_data,
   ];
   for (const obj of nested) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) continue;
     const val = extractTelefone(obj);
     if (val) return val;
   }
