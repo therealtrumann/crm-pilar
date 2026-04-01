@@ -18,15 +18,15 @@ export async function GET(request: NextRequest) {
 
   if (funnel) query = query.eq('funnel', funnel);
 
-  // Filtro por board — usa funnel + tag para isolar Pilar e Revora
+  // Filtro por board — usa origem para isolar leads da Revora (TEXT simples, sem constraint)
   if (board === 'revora') {
-    // Revora: funnel='revora' OU tag 'aplicacao-direta' (cobre fallback pré-migration)
-    query = query.or(`funnel.eq.revora,tags.cs.{"aplicacao-direta"}`);
+    // Revora: funnel='revora' OU origem='aplicacao-direta' (cobre fallback pré-migration)
+    query = query.or(`funnel.eq.revora,origem.eq.aplicacao-direta`);
   } else if (board === 'pilar') {
-    // Pilar: funnels Pilar E não tem tag 'aplicacao-direta'
+    // Pilar: funnels Pilar E origem diferente de 'aplicacao-direta'
     query = query
       .in('funnel', ['perpetuo', 'low-ticket', 'low2'])
-      .not('tags', 'cs', '{"aplicacao-direta"}');
+      .neq('origem', 'aplicacao-direta');
   }
 
   if (search) {
