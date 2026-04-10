@@ -153,10 +153,14 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error && (error.code === '23514' || error.message?.includes('violates check constraint'))) {
-      console.warn('[webhook/low2] constraint não migrado, usando novo-lead como fallback');
+      // Migration add_new_columns_and_funnels ainda não aplicada em produção:
+      // funnel='low2' e coluna='lead-low2' não existem no banco.
+      // Fallback: funnel='low-ticket' (válido na constraint antiga) + coluna='novo-lead'
+      // O Kanban normaliza para 'lead-low2' via tag 'low2-viagens'.
+      console.warn('[webhook/low2] constraint antiga detectada — fallback funnel=low-ticket, coluna=novo-lead');
       ({ data, error } = await supabase
         .from('leads')
-        .insert([{ ...leadPayload, coluna: 'novo-lead' }])
+        .insert([{ ...leadPayload, funnel: 'low-ticket', coluna: 'novo-lead' }])
         .select()
         .single());
     }
