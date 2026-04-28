@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Trash2 } from 'lucide-react';
-import { Lead, FunnelId, ColumnId, Tag, KanbanColumnDef, ALL_TAGS, TAG_META } from '@/lib/types';
+import { Lead, FunnelId, ColumnId, Tag, KanbanColumnDef, ALL_TAGS, TAG_META, FupTask } from '@/lib/types';
 
 interface CreateLeadModalProps {
   lead: Lead | null;
@@ -33,9 +33,10 @@ export default function CreateLeadModal({
   const [funnel,   setFunnel]   = useState<FunnelId>(lead?.funnel ?? defaultFunnel);
   const [coluna,   setColuna]   = useState<ColumnId>(lead?.coluna ?? defaultColuna);
   const [tags,     setTags]     = useState<Tag[]>(lead?.tags ?? []);
-  const [valor,    setValor]    = useState(lead?.valor?.toString() ?? '');
-  const [loading,  setLoading]  = useState(false);
-  const [confirm,  setConfirm]  = useState(false);
+  const [valor,     setValor]     = useState(lead?.valor?.toString() ?? '');
+  const [fupTasks,  setFupTasks]  = useState<FupTask[]>(lead?.fup_tasks ?? []);
+  const [loading,   setLoading]   = useState(false);
+  const [confirm,   setConfirm]   = useState(false);
 
   useEffect(() => {
     if (lead) {
@@ -46,6 +47,7 @@ export default function CreateLeadModal({
       setColuna(lead.coluna);
       setTags(lead.tags);
       setValor(lead.valor?.toString() ?? '');
+      setFupTasks(lead.fup_tasks ?? []);
     }
   }, [lead]);
 
@@ -55,12 +57,20 @@ export default function CreateLeadModal({
     );
   };
 
+  const toggleFupTask = (id: string) => {
+    setFupTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  };
+
   const handleSubmit = async () => {
     if (!nome.trim()) return;
     setLoading(true);
     try {
       const valorNum = valor ? parseFloat(valor) : 0;
-      await onSave({ nome: nome.trim(), telefone, origem, funnel, coluna, tags, valor: valorNum > 0 ? valorNum : undefined });
+      await onSave({
+        nome: nome.trim(), telefone, origem, funnel, coluna, tags,
+        valor: valorNum > 0 ? valorNum : undefined,
+        ...(fupTasks.length > 0 ? { fup_tasks: fupTasks } : {}),
+      });
       onRefresh();
     } finally {
       setLoading(false);
@@ -180,6 +190,52 @@ export default function CreateLeadModal({
               })}
             </div>
           </div>
+
+          {/* Checklist FUPs */}
+          {fupTasks.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-medium text-[#71717a]">Follow UPs</label>
+                <span className="text-xs text-[#3b82f6] font-medium">
+                  {fupTasks.filter(t => t.done).length}/{fupTasks.length} concluídos
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {fupTasks.map(task => (
+                  <button
+                    key={task.id}
+                    type="button"
+                    onClick={() => toggleFupTask(task.id)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors text-left"
+                    style={{
+                      backgroundColor: task.done ? '#3b82f610' : '#1e1e24',
+                      border: `1px solid ${task.done ? '#3b82f640' : '#2a2a30'}`,
+                    }}
+                  >
+                    <div
+                      className="w-4 h-4 rounded flex items-center justify-center shrink-0 transition-colors"
+                      style={{
+                        backgroundColor: task.done ? '#3b82f6' : 'transparent',
+                        border: `1.5px solid ${task.done ? '#3b82f6' : '#52525b'}`,
+                      }}
+                    >
+                      {task.done && (
+                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                          <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+                    <span
+                      className="text-sm font-medium transition-colors"
+                      style={{ color: task.done ? '#3b82f6' : '#a1a1aa', textDecoration: task.done ? 'line-through' : 'none' }}
+                    >
+                      {task.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}

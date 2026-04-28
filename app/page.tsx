@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Lead, ColumnId, Tag, BoardId, BOARDS } from '@/lib/types';
+import { Lead, ColumnId, Tag, BoardId, BOARDS, DEFAULT_FUP_TASKS } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import KanbanBoard from '@/components/KanbanBoard';
@@ -55,16 +55,26 @@ export default function Home() {
 
   // Mover card entre colunas
   const handleLeadMove = async (leadId: string, newColumn: ColumnId, tags: Tag[]) => {
+    const lead = allLeads.find(l => l.id === leadId);
+
+    // Ao entrar em FUPs pela primeira vez, injeta 5 tarefas de follow-up
+    const fup_tasks =
+      newColumn === 'fups' && (!lead?.fup_tasks || lead.fup_tasks.length === 0)
+        ? DEFAULT_FUP_TASKS
+        : undefined;
+
     setAllLeads(prev =>
       prev.map(l =>
-        l.id === leadId ? { ...l, coluna: newColumn, tags } : l
+        l.id === leadId
+          ? { ...l, coluna: newColumn, tags, ...(fup_tasks ? { fup_tasks } : {}) }
+          : l
       )
     );
 
     await fetch(`/api/leads/${leadId}`, {
       method:  'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ coluna: newColumn, tags }),
+      body:    JSON.stringify({ coluna: newColumn, tags, ...(fup_tasks ? { fup_tasks } : {}) }),
     });
   };
 

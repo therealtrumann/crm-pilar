@@ -20,9 +20,9 @@ export default function KanbanColumn({ column, leads, onLeadClick }: KanbanColum
   const totalValor = leads.reduce((sum, lead) => sum + (lead.valor ?? 0), 0);
 
   return (
-    <div className="flex flex-col w-[272px] shrink-0">
+    <div className="flex flex-col w-[272px] shrink-0 h-full">
       {/* Cabeçalho da coluna */}
-      <div className="flex items-center gap-2 mb-3 px-1">
+      <div className="flex items-center gap-2 mb-3 px-1 shrink-0">
         <div
           className="w-2.5 h-2.5 rounded-full shrink-0"
           style={{ backgroundColor: column.color }}
@@ -42,17 +42,17 @@ export default function KanbanColumn({ column, leads, onLeadClick }: KanbanColum
 
       {/* Total de valores */}
       {totalValor > 0 && (
-        <div className="mb-3 px-2 py-1.5 rounded-lg bg-[#7c3aed15] border border-[#7c3aed30]">
+        <div className="mb-3 px-2 py-1.5 rounded-lg bg-[#7c3aed15] border border-[#7c3aed30] shrink-0">
           <p className="text-xs text-[#7c3aed] font-semibold">
             Total: R$ {totalValor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
       )}
 
-      {/* Zona de drop */}
+      {/* Zona de drop com scroll próprio */}
       <div
         ref={setNodeRef}
-        className={`flex-1 rounded-xl p-2 min-h-[calc(100vh-220px)] flex flex-col gap-2 transition-colors duration-150 ${
+        className={`flex-1 rounded-xl p-2 overflow-y-auto flex flex-col gap-2 transition-colors duration-150 min-h-0 ${
           isOver
             ? 'bg-[#7c3aed12] border border-[#7c3aed50]'
             : 'bg-[#131316] border border-[#1e1e24]'

@@ -8,6 +8,20 @@ export type ColumnId =
   | 'venda-realizada' | 'perdido';
 export type BoardId = 'pilar' | 'revora';
 
+export interface FupTask {
+  id: string;
+  label: string;
+  done: boolean;
+}
+
+export const DEFAULT_FUP_TASKS: FupTask[] = [
+  { id: 'fup1', label: 'FUP1', done: false },
+  { id: 'fup2', label: 'FUP2', done: false },
+  { id: 'fup3', label: 'FUP3', done: false },
+  { id: 'fup4', label: 'FUP4', done: false },
+  { id: 'fup5', label: 'FUP5', done: false },
+];
+
 export interface Lead {
   id: string;
   nome: string;
@@ -17,6 +31,7 @@ export interface Lead {
   funnel: FunnelId;
   coluna: ColumnId;
   valor?: number;
+  fup_tasks?: FupTask[];
   data_entrada: string;
   created_at: string;
   updated_at: string;

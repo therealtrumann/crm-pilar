@@ -5,9 +5,31 @@ import { CSS } from '@dnd-kit/utilities';
 import { Phone, Calendar, GripVertical, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Lead, TAG_META } from '@/lib/types';
+import { Lead, TAG_META, FupTask } from '@/lib/types';
 import { useTheme } from '@/lib/theme-context';
 import { getColors } from '@/lib/theme-utils';
+
+function FupMiniChecklist({ tasks }: { tasks: FupTask[] }) {
+  const done = tasks.filter(t => t.done).length;
+  return (
+    <div className="mb-2">
+      <div className="flex items-center gap-1 mb-1">
+        <span className="text-xs text-[#52525b]">FUPs</span>
+        <span className="text-xs text-[#3b82f6] font-medium ml-auto">{done}/{tasks.length}</span>
+      </div>
+      <div className="flex gap-1">
+        {tasks.map(task => (
+          <div
+            key={task.id}
+            title={task.label}
+            className="flex-1 h-1.5 rounded-full transition-colors"
+            style={{ backgroundColor: task.done ? '#3b82f6' : '#1e1e24' }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 interface LeadCardProps {
   lead: Lead;
@@ -107,6 +129,11 @@ export default function LeadCard({ lead, onClick, overlay, isBeingDragged }: Lea
             );
           })}
         </div>
+      )}
+
+      {/* Checklist FUPs */}
+      {lead.fup_tasks && lead.fup_tasks.length > 0 && (
+        <FupMiniChecklist tasks={lead.fup_tasks} />
       )}
 
       {/* Data */}
