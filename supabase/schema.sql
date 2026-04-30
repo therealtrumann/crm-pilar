@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS leads (
   tags        TEXT[]      NOT NULL DEFAULT '{}',
   origem      TEXT        NOT NULL DEFAULT '',
   funnel      TEXT        NOT NULL DEFAULT 'perpetuo'   CHECK (funnel IN ('perpetuo', 'low-ticket', 'low2')),
-  coluna      TEXT        NOT NULL DEFAULT 'novo-lead'  CHECK (coluna IN ('lead-low1', 'lead-low2', 'novo-lead', 'fups', 'negociacao', 'venda-realizada', 'perdido')),
+  coluna      TEXT        NOT NULL DEFAULT 'novo-lead'  CHECK (coluna IN ('lead-low1', 'lead-low2', 'abordado', 'novo-lead', 'agendado', 'fup-pos-call', 'fups', 'negociacao', 'venda-realizada', 'perdido')),
   valor       DECIMAL(10, 2) DEFAULT 0.00,
   data_entrada TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
