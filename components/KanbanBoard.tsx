@@ -21,22 +21,6 @@ import LeadCard from './LeadCard';
 import { Lead, ColumnId, KanbanColumnDef, Tag } from '@/lib/types';
 import { playCashRegisterSound } from '@/lib/sounds';
 
-/**
- * Normaliza a coluna de um lead com base nas suas tags.
- * Necessário enquanto o banco ainda usa 'novo-lead' como fallback
- * para leads de Low1/Low2 (antes da migration de constraint).
- */
-function normalizeLeadColuna(lead: Lead): Lead {
-  if (lead.coluna !== 'novo-lead') return lead;
-  if (lead.tags.includes('low1-express'))  return { ...lead, coluna: 'lead-low1' };
-  if (lead.tags.includes('low2-viagens'))  return { ...lead, coluna: 'lead-low2' };
-  return lead;
-}
-
-function normalizeLeads(leads: Lead[]): Lead[] {
-  return leads.map(normalizeLeadColuna);
-}
-
 interface KanbanBoardProps {
   leads: Lead[];
   columns: KanbanColumnDef[];
@@ -63,13 +47,12 @@ function DeleteZone() {
 }
 
 export default function KanbanBoard({ leads, columns, onLeadMove, onLeadClick, onLeadDelete }: KanbanBoardProps) {
-  const [localLeads, setLocalLeads] = useState<Lead[]>(() => normalizeLeads(leads));
+  const [localLeads, setLocalLeads] = useState<Lead[]>(leads);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
-  // Sincroniza quando as props mudam (ex: webhook chega) — normaliza colunas por tag
   useEffect(() => {
-    setLocalLeads(normalizeLeads(leads));
+    setLocalLeads(leads);
   }, [leads]);
 
   const sensors = useSensors(
