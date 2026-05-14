@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
+import { findDuplicateLowLead } from '@/lib/dedup';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,12 @@ export async function POST(request: NextRequest) {
     const nome = customer.name || customer.nome || body.buyer_name || 'Lead sem nome';
     const telefone = customer.phone || customer.telefone || body.buyer_phone || '';
     const origem = `hotmart - ${body.product?.name || 'venda'}`;
+
+    const duplicate = await findDuplicateLowLead(supabase, telefone);
+    if (duplicate) {
+      console.log('[webhook/hotmart] duplicado ignorado — telefone já existe:', telefone, 'id:', duplicate.id);
+      return NextResponse.json({ success: true, lead: duplicate, duplicate: true }, { status: 200 });
+    }
 
     const leadPayload = {
       nome,

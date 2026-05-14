@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
+import { findDuplicateLowLead } from '@/lib/dedup';
 
 export const dynamic = 'force-dynamic';
 
@@ -140,6 +141,12 @@ export async function POST(request: NextRequest) {
     const origem   = extractOrigem(body);
 
     console.log('[webhook/low-ticket] extraído → nome:', nome, '| telefone:', telefone, '| origem:', origem);
+
+    const duplicate = await findDuplicateLowLead(supabase, telefone);
+    if (duplicate) {
+      console.log('[webhook/low-ticket] duplicado ignorado — telefone já existe:', telefone, 'id:', duplicate.id);
+      return NextResponse.json({ success: true, lead: duplicate, duplicate: true }, { status: 200 });
+    }
 
     const leadPayload = {
       nome,
